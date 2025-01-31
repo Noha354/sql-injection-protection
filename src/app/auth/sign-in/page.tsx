@@ -4,12 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react"; // Import Lucid icons
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignIn() {
-  const router = useRouter();
-
   // State for Secure Form
   const [loadingSecure, setLoadingSecure] = useState(false);
   const [errorSecure, setErrorSecure] = useState<string | null>(null);
