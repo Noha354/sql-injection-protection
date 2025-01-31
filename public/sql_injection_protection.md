@@ -23,29 +23,37 @@ The middleware is applied to secure endpoints where database interactions occur.
 ### Middleware Function (Example in Next.js API Route)
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 // Simple SQL Injection Pattern Check
 const sqlInjectionPatterns = [
-  /('.+--)|(;.+--)|(OR.+=.+)/i,  // Detects common SQLi patterns
-  /UNION.*SELECT/i,                        // Detects UNION-based attacks
-  /INSERT.*INTO/i,                         // Detects INSERT injections
-  /DELETE.*FROM/i,                         // Detects DELETE injections
-  /DROP.*TABLE/i                            // Detects DROP table attacks
+  /(\bUNION\b|\bSELECT\b|\bINSERT\b|\bDELETE\b|\bUPDATE\b)/i,
+  /(--|#|\/\*|\*\/)/, // Comment-based SQL injection
+  /(\bDROP\b|\bALTER\b|\bEXEC\b|\bOR\b|\bAND\b)/i, // Additional risky keywords
+  /('.+--|".+--|;.*--)/, // Termination-based injection
 ];
 
 export function middleware(req: NextRequest) {
   try {
     const urlParams = new URL(req.url).searchParams;
     for (const [key, value] of urlParams.entries()) {
-      if (sqlInjectionPatterns.some(pattern => pattern.test(value))) {
-        return NextResponse.json({ message: "SQL Injection attempt detected!" }, { status: 403 });
+      if (sqlInjectionPatterns.some((pattern) => pattern.test(value))) {
+        return NextResponse.json(
+          { message: "SQL Injection attempt detected!" },
+          { status: 403 }
+        );
       }
     }
     const body = req.body ? JSON.parse(req.body) : {};
     for (const key in body) {
-      if (typeof body[key] === 'string' && sqlInjectionPatterns.some(pattern => pattern.test(body[key]))) {
-        return NextResponse.json({ message: "SQL Injection attempt detected!" }, { status: 403 });
+      if (
+        typeof body[key] === "string" &&
+        sqlInjectionPatterns.some((pattern) => pattern.test(body[key]))
+      ) {
+        return NextResponse.json(
+          { message: "SQL Injection attempt detected!" },
+          { status: 403 }
+        );
       }
     }
   } catch (error) {
@@ -55,7 +63,7 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/secure-endpoint'],
+  matcher: ["/api/secure-endpoint"],
 };
 ```
 

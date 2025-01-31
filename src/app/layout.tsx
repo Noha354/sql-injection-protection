@@ -1,3 +1,4 @@
+import FloatingDocButton from "@/components/FloatingDocButton";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         {children}
+        <FloatingDocButton />
       </body>
     </html>
   );
